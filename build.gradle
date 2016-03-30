@@ -1,0 +1,112 @@
+def javaProjects = [project('spring-sample-webapp'), project(':spring-sample-service')]
+def querydslProjects = []
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
+        maven { url "http://10.10.1.42:8081/nexus/content/groups/public" }
+        maven { url "http://source.mysema.com/maven2/releases" }
+        maven { url "http://repo.spring.io/milestone" }
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.6.RELEASE"
+        classpath "com.ewerk.gradle.plugins:querydsl-plugin:1.0.3"
+    }
+}
+
+ext {
+    mariadbVersion = '1.1.7' //TODO boot1.3.3은 1.2.3 사용한다.
+    querydslVersion = '3.7.2'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+
+configure(javaProjects) {
+
+    apply plugin: 'java'
+    apply plugin: 'spring-boot'
+    apply plugin: "io.spring.dependency-management"
+
+    group = 'com.baemin.billing'
+    version = '1.0'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        testCompile('junit:junit:4.12')
+        testCompile('com.jayway.jsonpath:json-path')
+        testCompile('com.jayway.jsonpath:json-path-assert')
+        testCompile('org.springframework.boot:spring-boot-starter-test')
+    }
+
+    configurations {
+        all*.exclude group: 'commons-logging', module: 'commons-logging' // replaced with jcl-over-slf4j
+        all*.exclude group: 'log4j', module: 'log4j' // replaced with log4j-over-slf4j
+    }
+
+}
+
+configure(querydslProjects) {
+
+    def querydslSrcDir = 'src/main/generated'
+
+    apply plugin: "com.ewerk.gradle.plugins.querydsl"
+
+    querydsl {
+        library = "com.mysema.querydsl:querydsl-apt:$querydslVersion"
+        jpa = true
+        querydslSourcesDir = querydslSrcDir
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java', querydslSrcDir]
+            }
+        }
+    }
+}
+
+subprojects {
+}
+
+project(':spring-sample-webapp') {
+
+    dependencies {
+        compile project(':spring-sample-service')
+
+        compile('org.springframework.boot:spring-boot-starter-actuator')
+        compile('org.springframework.boot:spring-boot-starter-data-jpa')
+        compile('org.springframework.boot:spring-boot-starter-data-rest')
+        compile('org.springframework.boot:spring-boot-starter-security')
+        compile('org.springframework.boot:spring-boot-starter-web')
+        compile('org.springframework.boot:spring-boot-starter-tomcat')
+    }
+}
+
+project(':spring-sample-service') {
+
+    dependencies {
+
+        compile('org.springframework.boot:spring-boot-starter-data-jpa')
+        compile("com.mysema.querydsl:querydsl-jpa:$querydslVersion")
+        compile("com.mysema.querydsl:querydsl-apt:$querydslVersion")
+        compile("org.hibernate:hibernate-validator")
+
+        compile('com.h2database:h2')
+        compile("org.mariadb.jdbc:mariadb-java-client:$mariadbVersion")
+    }
+}
+
+

@@ -1,0 +1,3 @@
+rootProject.name = 'spring-sample'
+include 'spring-sample-webapp'
+include 'spring-sample-service'
