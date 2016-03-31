@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,7 +38,7 @@ public class PostControllerTest {
     @Test
     public void getPosts() throws Exception {
 
-        when(postService.getPosts()).thenReturn(Arrays.asList(new Post(1L, "Test1")));
+        when(postService.getPosts()).thenReturn(Arrays.asList(new Post(1L, "Test1", new Date())));
 
         mockMvc.perform(get("/post")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)

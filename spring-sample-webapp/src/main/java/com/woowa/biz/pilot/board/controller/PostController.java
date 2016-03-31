@@ -5,7 +5,9 @@ import com.woowa.biz.pilot.board.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,8 +23,12 @@ public class PostController {
     private PostService postService;
 
     @RequestMapping(value = "post", method = GET)
-    public List<Post> list() {
+    public @ResponseBody List<Post> list() {
         logger.info("Get all posts");
-        return postService.getPosts();
+
+        List<Post> posts = postService.getPosts();
+        logger.debug("posts = {}", posts.toString());
+
+        return posts;
     }
 }
