@@ -93,6 +93,8 @@ project(':spring-sample-webapp') {
 
 project(':spring-sample-service') {
 
+    bootRepackage.enabled = false
+
     dependencies {
 
         compile('org.springframework.boot:spring-boot-starter-data-jpa')
